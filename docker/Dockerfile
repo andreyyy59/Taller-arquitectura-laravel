@@ -42,4 +42,9 @@ RUN php artisan storage:link
 
 RUN chown -R www-data:www-data /var/www
 
+RUN sed -i 's/\r$//' docker/entrypoint.sh && \
+    sed -i 's/\r$//' docker/wait-for-it.sh && \
+    chmod +x docker/entrypoint.sh && \
+    chmod +x docker/wait-for-it.sh
+
 ENTRYPOINT ["/var/www/docker/entrypoint.sh"]
