@@ -8,9 +8,8 @@ fi
 
 php artisan config:cache
 
-databaseConnection=$(php artisan tinker --execute="echo config('database.default')")
-databaseHost=$(php artisan tinker --execute="echo config('database.connections.' . $databaseConnection . '.host')")
-databasePort=$(php artisan tinker --execute="echo config('database.connections.' . $databaseConnection . '.port')")
+databaseHost=${DB_HOST:-127.0.0.1}
+databasePort=${DB_PORT:-3306}
 
 ./docker/wait-for-it.sh $databaseHost:$databasePort -t 90 -- php artisan migrate --force --seed
 
