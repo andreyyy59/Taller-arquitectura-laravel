@@ -9,11 +9,13 @@ class DatabaseSeeder extends Seeder {
         $year = date('Y');
 
         // User
-        $user = \App\Models\User::create([
-            'name' => 'Daan',
-            'email' => 'daniel@pixely.me',
-            'password' => '$2y$12$eQ4s9CL8xg7Y6PoGNY4xuehr.d2u0e0VJ5CywkwqtQoyy/ntoP.pO' // hoi
-        ]);
+        $user = \App\Models\User::firstOrCreate(
+            ['email' => 'daniel@pixely.me'],
+            [
+                'name' => 'Daan',
+                'password' => '$2y$12$eQ4s9CL8xg7Y6PoGNY4xuehr.d2u0e0VJ5CywkwqtQoyy/ntoP.pO' // hoi
+            ]
+        );
 
         // Space
         $space = \App\Models\Space::create([

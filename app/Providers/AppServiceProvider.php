@@ -14,6 +14,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         if ($this->app->environment('production')) {
+            config(['logging.default' => 'errorlog']);
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
 
