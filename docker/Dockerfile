@@ -18,7 +18,7 @@ COPY docker/nginx.conf /etc/nginx/sites-enabled/default
 COPY docker/cron.conf /etc/cron.d/budget
 
 # Install PHP extensions
-RUN install-php-extensions pdo_mysql pdo_pgsql zip calendar gd
+RUN install-php-extensions pdo_mysql pdo_pgsql zip calendar gd bcmath intl exif
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -31,12 +31,12 @@ COPY . /var/www
 
 WORKDIR /var/www
 
+RUN cp .env.docker .env
+
 RUN composer install --no-dev --no-interaction
 
 RUN npm install && \
     npm run build
-
-RUN cp .env.docker .env
 
 RUN php artisan storage:link
 
