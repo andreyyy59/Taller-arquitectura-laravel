@@ -1,18 +1,24 @@
 #!/bin/bash
+echo "Starting entrypoint script..."
 
-appKey=$(awk -F= '$1 == "APP_KEY" {print $2}' .env)
+# Clear any cached configuration to ensure we read from environment variables
+php artisan config:clear
+php artisan cache:clear
 
-if [ -z "$appKey" ]; then
+appKey=$(grep "APP_KEY=" .env | cut -d'=' -f2)
+
+if [ -z "$appKey" ] || [ "$appKey" = "" ]; then
+  echo "Generating APP_KEY..."
   php artisan key:generate
 fi
-
-php artisan config:cache
 
 databaseHost=${DB_HOST:-127.0.0.1}
 databasePort=${DB_PORT:-5432}
 
+echo "Waiting for database at $databaseHost:$databasePort..."
 ./docker/wait-for-it.sh $databaseHost:$databasePort -t 90 -- php artisan migrate --force --seed
 
+echo "Starting supervisord..."
 supervisord -n -c docker/supervisord.conf
 
 exec "$@"
