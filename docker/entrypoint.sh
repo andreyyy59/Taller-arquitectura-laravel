@@ -16,7 +16,16 @@ databaseHost=${DB_HOST:-127.0.0.1}
 databasePort=${DB_PORT:-5432}
 
 echo "Waiting for database at $databaseHost:$databasePort..."
-./docker/wait-for-it.sh $databaseHost:$databasePort -t 90 -- php artisan migrate --force --seed
+./docker/wait-for-it.sh $databaseHost:$databasePort -t 90
+
+echo "Running migrations..."
+php artisan migrate --force --no-interaction
+
+echo "Checking migration status..."
+php artisan migrate:status
+
+echo "Running seeders..."
+php artisan db:seed --force --no-interaction
 
 echo "Starting supervisord..."
 supervisord -n -c docker/supervisord.conf
