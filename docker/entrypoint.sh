@@ -9,7 +9,7 @@ fi
 php artisan config:cache
 
 databaseHost=${DB_HOST:-127.0.0.1}
-databasePort=${DB_PORT:-3306}
+databasePort=${DB_PORT:-5432}
 
 ./docker/wait-for-it.sh $databaseHost:$databasePort -t 90 -- php artisan migrate --force --seed
 

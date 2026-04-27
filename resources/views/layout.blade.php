@@ -203,6 +203,27 @@
         @endif
     </div>
     @vite('resources/assets/js/app.js')
+    <script>
+        console.log('[Page Load]', {
+            url: window.location.href,
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent
+        });
+
+        document.addEventListener('livewire:load', function () {
+            console.log('[Livewire Loaded]');
+            Livewire.onError((error, status) => {
+                console.error('[Livewire Error]', { status, error });
+            });
+        });
+
+        @if (session('alert_type') && session('alert_message'))
+            console.log('[Session Alert]', {
+                type: '{{ session('alert_type') }}',
+                message: '{{ session('alert_message') }}'
+            });
+        @endif
+    </script>
     @yield('scripts')
     @livewireScripts
 </body>

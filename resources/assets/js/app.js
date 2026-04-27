@@ -15,6 +15,36 @@ import ColorPicker from './components/ColorPicker.vue';
 window.axios = axios;
 window.Vue = Vue;
 
+// Axios interceptors for logging
+window.axios.interceptors.request.use(request => {
+    console.log('[Axios Request]', request.method.toUpperCase(), request.url, request.data || '');
+    return request;
+}, error => {
+    console.error('[Axios Request Error]', error);
+    return Promise.reject(error);
+});
+
+window.axios.interceptors.response.use(response => {
+    console.log('[Axios Response]', response.status, response.config.url, response.data);
+    return response;
+}, error => {
+    if (error.response) {
+        console.error('[Axios Response Error]', error.response.status, error.response.config.url, error.response.data);
+    } else {
+        console.error('[Axios Network/Unknown Error]', error.message);
+    }
+    return Promise.reject(error);
+});
+
+// Global error logging
+window.addEventListener('unhandledrejection', event => {
+    console.error('[Unhandled Promise Rejection]', event.reason);
+});
+
+window.onerror = function(message, source, lineno, colno, error) {
+    console.error('[Global Error]', { message, source, lineno, colno, error });
+};
+
 Vue.component('chrome-picker', Chrome);
 
 Vue.component('button-dropdown', ButtonDropdown);
