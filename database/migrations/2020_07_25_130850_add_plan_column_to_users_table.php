@@ -10,7 +10,7 @@ class AddPlanColumnToUsersTable extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('plan')->after('remember_token');
+            $table->string('plan')->nullable()->after('remember_token');
         });
 
         foreach (User::all() as $user) {
