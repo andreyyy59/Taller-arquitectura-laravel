@@ -10,7 +10,7 @@ class AddIsoColumnToCurrenciesTable extends Migration
     public function up(): void
     {
         Schema::table('currencies', function (Blueprint $table) {
-            $table->string('iso')->after('symbol');
+            $table->string('iso')->nullable()->after('symbol');
         });
 
         foreach (Currency::all() as $currency) {

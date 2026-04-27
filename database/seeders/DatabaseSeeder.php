@@ -26,9 +26,9 @@ class DatabaseSeeder extends Seeder {
         $user->spaces()->attach($space);
 
         // Tags
-        $tagBills = \App\Models\Tag::create(['space_id' => $space->id, 'name' => 'Bills']);
-        $tagFood = \App\Models\Tag::create(['space_id' => $space->id, 'name' => 'Food']);
-        $tagTransport = \App\Models\Tag::create(['space_id' => $space->id, 'name' => 'Transport']);
+        $tagBills = \App\Models\Tag::create(['space_id' => $space->id, 'name' => 'Bills', 'color' => 'FF5733']);
+        $tagFood = \App\Models\Tag::create(['space_id' => $space->id, 'name' => 'Food', 'color' => '33FF57']);
+        $tagTransport = \App\Models\Tag::create(['space_id' => $space->id, 'name' => 'Transport', 'color' => '3357FF']);
 
         for ($i = 1; $i < 12; $i ++) {
             // Income
