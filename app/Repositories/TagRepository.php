@@ -29,65 +29,38 @@ class TagRepository
         string $startDate = null,
         string $endDate = null
     ) {
-        $sql = '
-            SELECT
-                tags.name AS name,
-                tags.color AS color,
-                SUM(spendings.amount) AS amount
-            FROM
-                tags
-            LEFT OUTER JOIN
-                spendings ON tags.id = spendings.tag_id AND spendings.deleted_at IS NULL
-            WHERE
-                tags.space_id = ?';
+        $query = DB::table('tags')
+            ->select('tags.name', 'tags.color', DB::raw('SUM(spendings.amount) AS amount'))
+            ->leftJoin('spendings', function ($join) {
+                $join->on('tags.id', '=', 'spendings.tag_id')
+                    ->whereNull('spendings.deleted_at');
+            })
+            ->where('tags.space_id', $spaceId);
 
         if ($year) {
-            $sql .= ' AND YEAR(spendings.happened_on) = ?';
+            $query->whereYear('spendings.happened_on', $year);
         }
 
         if ($month) {
-            $sql .= ' AND MONTH(spendings.happened_on) = ?';
+            $query->whereMonth('spendings.happened_on', $month);
         }
 
         if ($startDate && $endDate) {
-            $sql .= ' AND spendings.happened_on BETWEEN ? AND ?';
+            $query->whereBetween('spendings.happened_on', [$startDate, $endDate]);
         } elseif ($startDate) {
-            $sql .= ' AND spendings.happened_on >= ?';
+            $query->where('spendings.happened_on', '>=', $startDate);
         } elseif ($endDate) {
-            $sql .= ' AND spendings.happened_on <= ?';
+            $query->where('spendings.happened_on', '<=', $endDate);
         }
 
-        $sql .= '
-            GROUP BY
-                tags.id
-            ORDER BY
-                SUM(spendings.amount) DESC
-        ';
+        $query->groupBy('tags.id', 'tags.name', 'tags.color')
+            ->orderByDesc(DB::raw('SUM(spendings.amount)'));
 
         if ($limit) {
-            $sql .= ' LIMIT ' . $limit;
+            $query->limit($limit);
         }
 
-        $data = [$spaceId];
-
-        if ($year) {
-            $data[] = $year;
-        }
-
-        if ($month) {
-            $data[] = $month;
-        }
-
-        if ($startDate && $endDate) {
-            $data[] = $startDate;
-            $data[] = $endDate;
-        } elseif ($startDate) {
-            $data[] = $startDate;
-        } elseif ($endDate) {
-            $data[] = $endDate;
-        }
-
-        return DB::select($sql . ';', $data);
+        return $query->get()->toArray();
     }
 
 

@@ -30,32 +30,26 @@ class BudgetRepository
 
     public function doesExist(int $spaceId, int $tagId): bool
     {
-        return DB::selectOne('
-                SELECT COUNT(*) AS count
-                FROM budgets
-                WHERE
-                    space_id = ?
-                    AND tag_id = ?
-                    AND (
-                        starts_on <= NOW()
-                        AND (
-                            ends_on IS NULL
-                            OR ends_on > NOW()
-                        )
-                    )
-            ', [
-                $spaceId,
-                $tagId
-            ])->count > 0;
+        return Budget::where('space_id', $spaceId)
+            ->where('tag_id', $tagId)
+            ->where('starts_on', '<=', now())
+            ->where(function ($query) {
+                $query->where('ends_on', '>', now())
+                    ->orWhereNull('ends_on');
+            })
+            ->exists();
     }
 
     public function getActive()
     {
         $today = date('Y-m-d');
 
-        return Budget::whereRaw('space_id = ?', [session('space_id')])
-            ->whereRaw('starts_on <= ?', [$today])
-            ->whereRaw('(ends_on >= ? OR ends_on IS NULL)', [$today])
+        return Budget::where('space_id', session('space_id'))
+            ->where('starts_on', '<=', $today)
+            ->where(function ($query) use ($today) {
+                $query->where('ends_on', '>=', $today)
+                    ->orWhereNull('ends_on');
+            })
             ->get();
     }
 
@@ -75,29 +69,32 @@ class BudgetRepository
         if ($budget->period === 'yearly') {
             return Spending::where('space_id', session('space_id'))
                 ->where('tag_id', $budget->tag->id)
-                ->whereRaw('YEAR(happened_on) = ?', [date('Y')])
+                ->whereYear('happened_on', date('Y'))
                 ->sum('amount');
         }
 
         if ($budget->period === 'monthly') {
             return Spending::where('space_id', session('space_id'))
                 ->where('tag_id', $budget->tag->id)
-                ->whereRaw('MONTH(happened_on) = ?', [date('n')])
-                ->whereRaw('YEAR(happened_on) = ?', [date('Y')])
+                ->whereYear('happened_on', date('Y'))
+                ->whereMonth('happened_on', date('n'))
                 ->sum('amount');
         }
 
         if ($budget->period === 'weekly') {
             return Spending::where('space_id', session('space_id'))
                 ->where('tag_id', $budget->tag->id)
-                ->whereRaw('WEEK(happened_on) = WEEK(NOW())')
+                ->whereBetween('happened_on', [
+                    date('Y-m-d', strtotime('monday this week')),
+                    date('Y-m-d', strtotime('sunday this week'))
+                ])
                 ->sum('amount');
         }
 
         if ($budget->period === 'daily') {
             return Spending::where('space_id', session('space_id'))
                 ->where('tag_id', $budget->tag->id)
-                ->whereRaw('happened_on = ?', [date('Y-m-d')])
+                ->whereDate('happened_on', date('Y-m-d'))
                 ->sum('amount');
         }
 

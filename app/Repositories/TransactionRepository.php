@@ -23,12 +23,14 @@ class TransactionRepository
         for ($i = 1; $i <= 53; $i++) { // This used to be 52, IDK what happens after we moved it to 53
             $balance += Earning::query()
                 ->where('space_id', session('space_id'))
-                ->whereRaw('YEAR(happened_on) = ? AND WEEK(happened_on, ?) = ?', [$year, $weekMode, $i])
+                ->whereYear('happened_on', $year)
+                ->whereRaw('EXTRACT(WEEK FROM happened_on) = ?', [$i])
                 ->sum('amount');
 
             $balance -= Spending::query()
                 ->where('space_id', session('space_id'))
-                ->whereRaw('YEAR(happened_on) = ? AND WEEK(happened_on, ?) = ?', [$year, $weekMode, $i])
+                ->whereYear('happened_on', $year)
+                ->whereRaw('EXTRACT(WEEK FROM happened_on) = ?', [$i])
                 ->sum('amount');
 
             $weeks[$i] = Helper::formatNumber($balance / 100);

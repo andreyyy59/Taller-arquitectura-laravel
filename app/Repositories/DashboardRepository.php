@@ -32,13 +32,14 @@ class DashboardRepository
     {
         return Spending::query()
             ->where('space_id', session('space_id'))
-            ->whereRaw('YEAR(happened_on) = ? AND MONTH(happened_on) = ?', [$year, $month])
+            ->whereYear('happened_on', $year)
+            ->whereMonth('happened_on', $month)
             ->sum('amount');
     }
 
     public function getDailyBalance(int $spaceId, string $year, string $month): array
     {
-        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        $daysInMonth = date('t', mktime(0, 0, 0, $month, 1, $year));
 
         $balanceTick = 0;
         $dailyBalance = [];

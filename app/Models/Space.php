@@ -113,21 +113,15 @@ class Space extends Model
 
     public function monthlyRecurrings($year, $month)
     {
-        $query = DB::selectOne('
-            SELECT SUM(amount) as amount
-            FROM recurrings
-            WHERE space_id = :space_id
-                AND YEAR(starts_on) <= :start_year
-                AND MONTH(starts_on) <= :start_month
-                AND ((YEAR(ends_on) >= :end_year AND MONTH(ends_on) >= :end_month) OR ends_on IS NULL)
-        ', [
-            'space_id' => $this->id,
-            'start_year' => $year,
-            'start_month' => $month,
-            'end_year' => $year,
-            'end_month' => $month
-        ]);
-
-        return $query->amount;
+        return $this->recurrings()
+            ->whereYear('starts_on', '<=', $year)
+            ->whereMonth('starts_on', '<=', $month)
+            ->where(function ($query) use ($year, $month) {
+                $query->where(function ($query) use ($year, $month) {
+                    $query->whereYear('ends_on', '>=', $year)
+                        ->whereMonth('ends_on', '>=', $month);
+                })->orWhereNull('ends_on');
+            })
+            ->sum('amount');
     }
 }

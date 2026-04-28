@@ -24,7 +24,7 @@ class Spent
         if ($this->properties->period === 'today') {
             $spent = Spending::query()
                 ->where('space_id', session('space_id'))
-                ->whereRaw('DATE(happened_on) = ?', [date('Y-m-d')])
+                ->whereDate('happened_on', date('Y-m-d'))
                 ->sum('amount');
         }
 
@@ -34,14 +34,15 @@ class Spent
 
             $spent = Spending::query()
                 ->where('space_id', session('space_id'))
-                ->whereRaw('DATE(happened_on) >= ? AND DATE(happened_ON) <= ?', [$monday, $sunday])
+                ->whereBetween('happened_on', [$monday, $sunday])
                 ->sum('amount');
         }
 
         if ($this->properties->period === 'this_month') {
             $spent = Spending::query()
                 ->where('space_id', session('space_id'))
-                ->whereRaw('YEAR(happened_on) = ? AND MONTH(happened_on) = ?', [date('Y'), date('n')])
+                ->whereYear('happened_on', date('Y'))
+                ->whereMonth('happened_on', date('n'))
                 ->sum('amount');
         }
 
