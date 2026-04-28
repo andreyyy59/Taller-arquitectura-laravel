@@ -60,7 +60,7 @@ class TagRepository
             $query->limit($limit);
         }
 
-        return $query->get()->toArray();
+        return $query->get();
     }
 
 

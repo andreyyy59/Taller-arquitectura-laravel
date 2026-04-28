@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Repositories\TagRepository;
 use Illuminate\Http\Request;
 use App\Repositories\DashboardRepository;
+use App\Models\Space;
 
 class DashboardController extends Controller
 {
@@ -27,6 +28,8 @@ class DashboardController extends Controller
 
         $mostExpensiveTags = $this->tagRepository->getMostExpensiveTags($space_id, null, $currentYear, $currentMonth);
 
+        $space = Space::find($space_id);
+
         return view('dashboard', [
             'month' => date('n'),
 
@@ -37,10 +40,11 @@ class DashboardController extends Controller
 
             'daysInMonth' => $daysInMonth,
             'dailyBalance' => $this->dashboardRepository->getDailyBalance(
-                session('space_id'),
+                $space_id,
                 $currentYear,
                 $currentMonth,
-            )
+            ),
+            'currency' => $space->currency->symbol
         ]);
     }
 }
