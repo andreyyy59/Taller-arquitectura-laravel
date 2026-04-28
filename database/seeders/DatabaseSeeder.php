@@ -18,17 +18,24 @@ class DatabaseSeeder extends Seeder {
         );
 
         // Space
-        $space = \App\Models\Space::create([
-            'currency_id' => 1,
-            'name' => 'Daan\'s Space'
-        ]);
+        $space = \App\Models\Space::firstOrCreate(
+            ['name' => 'Daan\'s Space'],
+            ['currency_id' => 1]
+        );
 
-        $user->spaces()->attach($space);
+        if (!$user->spaces()->where('space_id', $space->id)->exists()) {
+            $user->spaces()->attach($space);
+        }
+
+        // Widgets
+        if ($user->widgets()->count() === 0) {
+            (new \App\Actions\CreateDefaultWidgetsAction())->execute($user->id);
+        }
 
         // Tags
-        $tagBills = \App\Models\Tag::create(['space_id' => $space->id, 'name' => 'Bills', 'color' => 'FF5733']);
-        $tagFood = \App\Models\Tag::create(['space_id' => $space->id, 'name' => 'Food', 'color' => '33FF57']);
-        $tagTransport = \App\Models\Tag::create(['space_id' => $space->id, 'name' => 'Transport', 'color' => '3357FF']);
+        $tagBills = \App\Models\Tag::firstOrCreate(['space_id' => $space->id, 'name' => 'Bills'], ['color' => 'FF5733']);
+        $tagFood = \App\Models\Tag::firstOrCreate(['space_id' => $space->id, 'name' => 'Food'], ['color' => '33FF57']);
+        $tagTransport = \App\Models\Tag::firstOrCreate(['space_id' => $space->id, 'name' => 'Transport'], ['color' => '3357FF']);
 
         for ($i = 1; $i < 12; $i ++) {
             // Income
