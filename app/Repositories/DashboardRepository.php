@@ -45,14 +45,16 @@ class DashboardRepository
         $dailyBalance = [];
 
         for ($i = 1; $i <= $daysInMonth; $i++) {
+            $date = $year . '-' . $month . '-' . sprintf('%02d', $i);
+
             $balanceTick -= Spending::query()
                 ->where('space_id', $spaceId)
-                ->where('happened_on', $year . '-' . $month . '-' . $i)
+                ->where('happened_on', $date)
                 ->sum('amount');
 
             $balanceTick += Earning::query()
                 ->where('space_id', $spaceId)
-                ->where('happened_on', $year . '-' . $month . '-' . $i)
+                ->where('happened_on', $date)
                 ->sum('amount');
 
             $dailyBalance[$i] = Helper::formatNumber($balanceTick / 100);
