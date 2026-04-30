@@ -33,9 +33,9 @@ class DatabaseSeeder extends Seeder {
         }
 
         // Tags
-        $tagBills = \App\Models\Tag::firstOrCreate(['space_id' => $space->id, 'name' => 'Bills'], ['color' => 'FF5733']);
-        $tagFood = \App\Models\Tag::firstOrCreate(['space_id' => $space->id, 'name' => 'Food'], ['color' => '33FF57']);
-        $tagTransport = \App\Models\Tag::firstOrCreate(['space_id' => $space->id, 'name' => 'Transport'], ['color' => '3357FF']);
+        $tagBills = \App\Models\Tag::updateOrCreate(['space_id' => $space->id, 'name' => 'Bills'], ['color' => 'FF5733']);
+        $tagFood = \App\Models\Tag::updateOrCreate(['space_id' => $space->id, 'name' => 'Food'], ['color' => '33FF57']);
+        $tagTransport = \App\Models\Tag::updateOrCreate(['space_id' => $space->id, 'name' => 'Transport'], ['color' => '3357FF']);
 
         for ($i = 1; $i < 12; $i ++) {
             // Income
